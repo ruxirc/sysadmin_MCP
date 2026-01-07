@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  ollama_server:
+    image: ollama/ollama:latest
+    container_name: ollama_llm
+    volumes:
+      - ollama_models:/root/.ollama
+      - ./ollama_start.sh:/app/ollama_start.sh
+    ports:
+      - "11434:11434"
+    restart: always
+    entrypoint: ["/bin/bash", "/app/ollama_start.sh"]
+
+  mcp_server:
+    build: 
+      context: .
+      dockerfile: ./mcp/Dockerfile
+    container_name: mcp_server
+    depends_on:
+      - ollama_server 
+    ports:
+      - "8001:8000"
+    restart: always
+    volumes:
+      - ./ruxi:/ruxi
+
+  adk_web_ui:
+    build: 
+      context: .
+      dockerfile: ./agent/Dockerfile
+    container_name: sysadmin_agent
+    depends_on:
+      - mcp_server 
+      - ollama_server
+    ports:
+      - "8000:8000" 
+    environment:
+      - OLLAMA_HOST=http://ollama_server:11434
+      - OLLAMA_API_BASE=http://ollama_server:11434
+      - MCP_SERVER_URL=http://mcp_server:8000/mcp
+      - UVICORN_HOST=0.0.0.0
+      - HOST=0.0.0.0
+    restart: always
+
+volumes:
+  ollama_models:

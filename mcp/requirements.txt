@@ -1,0 +1,5 @@
+fastmcp
+uvicorn
+python-multipart
+httpx-sse
+requests

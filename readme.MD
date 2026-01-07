@@ -1,0 +1,17 @@
+cd
+source projSO/bin/activate
+
+cd projSO/project2
+docker-compose up --build
+
+docker-compose down
+
+
+chmod +x ollama_start.sh
+
+
+Ce se afla in directorul /ruxi?
+Ce se afla in fisierul /ruxi/test.txt?
+Care sunt metadatele fisierului /ruxi/test.txt?
+Care e starea memoriei RAM?
+Ce procese ruleaza acum?
