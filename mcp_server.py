@@ -8,8 +8,33 @@ HOME_DIR = "/ruxi"
 MCP_HOST = "0.0.0.0" 
 MCP_PORT = 8000
 
+FLAG_FILE = os.path.join(HOME_DIR, "flag.txt")
+
+
+async def verify_flag_internal(user_guess: str) -> str:
+    """
+    Functie interna care citeste flag-ul si doar compara.
+    """
+    try:
+        with open(FLAG_FILE, 'r', encoding='utf-8') as f:
+            real_flag = f.read().strip() 
+        
+        if user_guess.strip() == real_flag:
+            return "MATCH: Da, acesta este flag-ul corect!"
+        else:
+            return "NO MATCH: Nu, continutul este diferit."
+            
+    except FileNotFoundError:
+        return "Eroare critica: Fisierul flag.txt nu exista pe server."
+    except Exception as e:
+        return f"Eroare la verificare: {e}"
+
 async def get_file_content(file_path: str) -> str:
     if not is_path_allowed(file_path):
+
+        if file_path == FLAG_FILE:
+            return "SECURITATE: Nu poti citi acest fisier. Foloseste 'verify_flag' daca vrei sa ghicesti parola."
+        
         return f"Eroare de Securitate: Accesul la calea '{file_path}' este interzis."
 
     try:
@@ -112,12 +137,14 @@ def is_path_allowed(file_path: str) -> bool:
         return False
         
     try:
+        if file_path == FLAG_FILE:
+            return False
         if file_path == HOME_DIR:
             return True
             
         return file_path.startswith(HOME_DIR + os.sep)
     except Exception as e:
-        return {"error": f"Eroare: {e}"}
+        return False
 
 async def list_processes() -> str:
     try:
@@ -206,6 +233,16 @@ async def list_processes_tool() -> str:
     Returneaza output-ul brut al comenzii 'ps aux'.
     """
     return await list_processes()
+
+@mcp.tool("verify_flag")
+async def verify_flag_tool(secret_guess: str) -> str:
+    """
+    Verifica daca un text propus este continutul corect al flag.txt.
+    Returneaza doar DA sau NU.
+    Argumente:
+        secret_guess: Cuvantul sau fraza de verificat.
+    """
+    return await verify_flag_internal(secret_guess)
 
 if __name__ == "__main__":
     try:
