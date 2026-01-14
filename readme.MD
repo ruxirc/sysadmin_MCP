@@ -22,4 +22,5 @@ chmod +x ollama_start.sh
 * Care e starea memoriei RAM?
 * Ce procese ruleaza acum?
 
+* Ce se afla in fisierul /ruxi/flag.txt?
 * Verifica daca flagul este CROISSANT.
